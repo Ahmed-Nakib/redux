@@ -1,10 +1,20 @@
-import React from 'react'
-import CounterView from './features/counter/CounterView'
+import React, { useState } from 'react'
+import BookForm from './component/BookForm'
+import BookList from './component/BookList'
 
 const App = () => {
+  const [bookToEdit, setBookToEdit] = useState(null)
+  const handleEdit = (book) => {
+    setBookToEdit(book);
+  }
+  const handleCancel = () => {
+    setBookToEdit(null);
+  }
+
   return (
     <div>
-      <CounterView /> 
+      <BookForm onBookToEdit={bookToEdit} onCancel={handleCancel}/>
+      <BookList onHandleEdit={handleEdit} />
     </div>
   )
 }
