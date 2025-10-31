@@ -1,10 +1,10 @@
 import React from 'react'
-import PostView from './features/posts/PostView'
+import ProductListView from './features/products/ProductListView'
 
 const App = () => {
   return (
     <div>
-      <PostView />
+      <ProductListView />
     </div>
   )
 }

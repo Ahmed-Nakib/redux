@@ -1,0 +1,26 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "title": "Essence Mascara Lash Princess",
+      "description": "The Essence Mascara Lash Princess is a popular mascara known for its volumizing and lengthening effects. Achieve dramatic lashes with this long-lasting and cruelty-free formula.",
+      "category": "beauty",
+      "price": 9.99
+    },
+    {
+      "id": 2,
+      "title": "Samsung Galaxy S24 Ultra",
+      "description": "The Samsung Galaxy S24 Ultra features a 200MP camera, stunning AMOLED display, and the power of the Snapdragon 8 Gen 3 processor for exceptional performance.",
+      "category": "electronics",
+      "price": 1199.99
+    },
+    {
+      "id": 3,
+      "title": "Nike Air Max 270",
+      "description": "Nike Air Max 270 shoes provide superior comfort with a large Air unit underfoot and stylish modern design, perfect for casual and athletic wear.",
+      "category": "fashion",
+      "price": 149.99
+    }
+  ]
+}
+ 
