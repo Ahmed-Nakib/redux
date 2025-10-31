@@ -13,8 +13,20 @@ const BASE_URL = "http://localhost:3000/products";
 export const fetchProducts = createAsyncThunk("products/fetchProducts", async() => {
   const res = await axios.get(BASE_URL)
   return res.data;
+  })
+
+export const deleteProduct = createAsyncThunk("products/deleteProduct", async(id) => {
+  await axios.delete(`${BASE_URL}/${id}`)
+  return id;
+  })
+
+export const createProduct = createAsyncThunk("products/createProduct", async(product) => {
+  const res = await axios.delete(BASE_URL, product)
+  console.log(res);
   
-})
+  })
+
+
 const productSlice = createSlice({
   name: 'products',
   initialState,
@@ -33,6 +45,9 @@ const productSlice = createSlice({
       state.isLoading = false;
       state.products = [];
       state.error = action.error.message;
+    }) 
+    builder.addCase(deleteProduct.fulfilled, (state, action) => {
+      state.products = state.products.filter((product) => product.id != action.id)
     }) 
   }
   });

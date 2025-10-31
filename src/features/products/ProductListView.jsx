@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProducts } from "./productSlice";
+import { deleteProduct, fetchProducts } from "./productSlice";
+import ProductForm from "./ProductForm";
 
 const ProductListView = () => {
   const { isLoading, products, error } = useSelector(
@@ -57,8 +58,10 @@ const ProductListView = () => {
                 <p className="text-lg font-semibold text-blue-400">
                   ${product.price}
                 </p>
-                <button className="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all duration-300">
-                  View
+                <button 
+                onClick={() => dispatch(deleteProduct(product.id))}
+                className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all duration-300">
+                  Delete
                 </button>
               </div>
             </div>
@@ -70,6 +73,8 @@ const ProductListView = () => {
           <p className="text-gray-400 text-lg mt-10">No products available 💤</p>
         )
       )}
+
+      <ProductForm />
     </div>
   );
 };
