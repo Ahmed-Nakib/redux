@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { createProduct, updateProduct } from "./productSlice";
 
-const ProductForm = ({ onProductToEdit, onIsEdit }) => {
+const ProductForm = ({ onProductToEdit, onIsEdit,  onHandleCancelEdit }) => {
   const dispatch = useDispatch();
 
   const [product, setProduct] = useState({
@@ -18,6 +18,7 @@ const ProductForm = ({ onProductToEdit, onIsEdit }) => {
     event.preventDefault();
     if (onIsEdit) {
       dispatch(updateProduct({ product: product, id: product.id }));
+      onHandleCancelEdit();
     } else {
       dispatch(createProduct({ ...product, id: nanoid() }));
     }
@@ -30,6 +31,11 @@ const ProductForm = ({ onProductToEdit, onIsEdit }) => {
       [e.target.name]: e.target.value,
     });
   };
+
+  const handleCancel = () => {
+    setProduct({ id: "", title: "", price: "", description: "", category: "" });
+    onHandleCancelEdit();
+  }
 
   useEffect(() => {
     if (onProductToEdit) {
@@ -103,7 +109,7 @@ const ProductForm = ({ onProductToEdit, onIsEdit }) => {
 
           {onIsEdit && (
             <button
-              type="submit"
+              onClick={handleCancel}
               className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl py-3 mt-4 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
             >
               Cancel

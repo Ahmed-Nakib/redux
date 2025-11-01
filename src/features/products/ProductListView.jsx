@@ -1,117 +1,100 @@
-import { nanoid } from "nanoid";
-import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { createProduct, updateProduct } from "./productSlice";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteProduct, fetchProducts } from "./productSlice";
 
-const ProductForm = ({ onProductToEdit, onIsEdit }) => {
+const ProductListView = ({ onHandleSetProductToEdit }) => {
+  const { isLoading, products, error } = useSelector((state) => state.productsR);
   const dispatch = useDispatch();
 
-  const [product, setProduct] = useState({
-    id: "",
-    title: "",
-    price: "",
-    description: "",
-    category: "",
-  });
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (onIsEdit) {
-      dispatch(updateProduct({ product: product, id: product.id }));
-    } else {
-      dispatch(createProduct({ ...product, id: nanoid() }));
-    }
-    setProduct({ id: "", title: "", price: "", description: "", category: "" }); // reset form
-  };
-
-  const handleChange = (e) => {
-    setProduct({
-      ...product,
-      [e.target.name]: e.target.value,
-    });
-  };
-
   useEffect(() => {
-    if (onProductToEdit) {
-      setProduct({
-        title: onProductToEdit.title,
-        price: onProductToEdit.price,
-        description: onProductToEdit.description,
-        category: onProductToEdit.category,
-      });
-    }
-  }, [onProductToEdit]);
+    dispatch(fetchProducts());
+  }, [dispatch]);
+
+  const handleEdit = (product) => {
+    onHandleSetProductToEdit(product);
+  };
+
+  const handleDelete = (id) => {
+    dispatch(deleteProduct(id));
+  };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center px-6 py-12">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-2xl border border-gray-700 w-full max-w-md p-8"
-      >
-        <h2 className="text-3xl font-bold text-white mb-8 text-center">
-          🛒 Add New Product
-        </h2>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-gray-100 py-16 px-6 flex flex-col items-center">
+      {/* Header */}
+      <h1 className="text-4xl font-bold text-white mb-10 tracking-wide">
+        🛍️ Product Collection
+      </h1>
 
-        <div className="flex flex-col gap-5">
-          <input
-            type="text"
-            name="title"
-            value={product.title}
-            onChange={handleChange}
-            placeholder="Product Title"
-            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
-            required
-          />
-
-          <input
-            type="text"
-            name="price"
-            value={product.price}
-            onChange={handleChange}
-            placeholder="Product Price"
-            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
-            required
-          />
-
-          <textarea
-            type="text"
-            name="description"
-            value={product.description}
-            onChange={handleChange}
-            placeholder="Description"
-            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
-            required
-          />
-
-          <input
-            type="text"
-            name="category"
-            value={product.category}
-            onChange={handleChange}
-            placeholder="Category"
-            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
-            required
-          />
-
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl py-3 mt-4 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
-          >
-            {onIsEdit ? "Update" : " Add Product"}
-          </button>
-
-          {onIsEdit && (
-            <button
-              type="submit"
-              className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl py-3 mt-4 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
-            >
-              Cancel
-            </button>
-          )}
+      {/* Loading State */}
+      {isLoading && (
+        <div className="flex justify-center items-center h-40">
+          <p className="text-xl text-blue-400 animate-pulse">Loading...</p>
         </div>
-      </form>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-800 text-red-200 p-4 rounded-xl mb-6 shadow-md w-full max-w-3xl text-center">
+          <h2 className="font-semibold text-lg">❌ Error:</h2>
+          <p>{error.message || "Something went wrong."}</p>
+        </div>
+      )}
+
+      {/* Products Grid */}
+      {!isLoading && !error && products?.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="bg-gray-800/80 backdrop-blur-lg border border-gray-700 hover:border-blue-500 hover:shadow-blue-500/30 shadow-lg transition-all duration-300 rounded-2xl p-6 flex flex-col justify-between"
+            >
+              {/* Product Info */}
+              <div>
+                <h2 className="text-xl font-semibold text-white mb-2 hover:text-blue-400 transition-colors">
+                  {product.title}
+                </h2>
+                <p className="text-gray-400 text-sm mb-3 italic">
+                  {product.category}
+                </p>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {product.description.length > 100
+                    ? product.description.slice(0, 100) + "..."
+                    : product.description}
+                </p>
+              </div>
+
+              {/* Price & Actions */}
+              <div className="flex justify-between items-center mt-5">
+                <p className="text-lg font-bold text-blue-400">
+                  ${product.price}
+                </p>
+
+                <div className="space-x-3">
+                  <button
+                    onClick={() => handleEdit(product)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(product.id)}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        !isLoading &&
+        !error && (
+          <p className="text-gray-400 text-lg mt-10">No products available 💤</p>
+        )
+      )}
     </div>
   );
 };
 
-export default ProductForm;
+export default ProductListView;

@@ -10,10 +10,15 @@ const App = () => {
     setProductToEdit(product)
     setIsEdit(true)
   }
+
+     const handleCancelEdit = () => {
+      setIsEdit(false);
+      setProductToEdit(null);
+    };
   return (
     <div>
       <ProductListView onHandleSetProductToEdit={handleSetProductToEdit} />
-      <ProductForm onProductToEdit={productToEdit} onIsEdit={isEdit}/>
+      <ProductForm onProductToEdit={productToEdit} onIsEdit={isEdit} onHandleCancelEdit={handleCancelEdit}/>
     </div>
   )
 }
