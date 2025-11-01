@@ -1,14 +1,17 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteProduct, fetchProducts } from "./productSlice";
-import ProductForm from "./ProductForm";
 
-const ProductListView = () => {
+const ProductListView = ({onHandleSetProductToEdit}) => {
   const { isLoading, products, error } = useSelector(
     (state) => state.productsR
   );
 
   const dispatch = useDispatch();
+
+  const handleEdit =(product) => {
+    onHandleSetProductToEdit(product)
+  }
 
   useEffect(() => {
     dispatch(fetchProducts());
@@ -58,11 +61,18 @@ const ProductListView = () => {
                 <p className="text-lg font-semibold text-blue-400">
                   ${product.price}
                 </p>
-                <button 
+                <div className="flex gap-2">
+                  <button 
+                onClick={() => handleEdit(product)}
+                className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-all duration-300 cursor-pointer">
+                  Edit
+                </button>
+                  <button 
                 onClick={() => dispatch(deleteProduct(product.id))}
-                className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all duration-300">
+                className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all duration-300 cursor-pointer">
                   Delete
                 </button>
+                </div>
               </div>
             </div>
           ))}
@@ -74,7 +84,6 @@ const ProductListView = () => {
         )
       )}
 
-      <ProductForm />
     </div>
   );
 };
