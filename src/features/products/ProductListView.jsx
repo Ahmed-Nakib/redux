@@ -1,91 +1,117 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteProduct, fetchProducts } from "./productSlice";
+import { nanoid } from "nanoid";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { createProduct, updateProduct } from "./productSlice";
 
-const ProductListView = ({onHandleSetProductToEdit}) => {
-  const { isLoading, products, error } = useSelector(
-    (state) => state.productsR
-  );
-
+const ProductForm = ({ onProductToEdit, onIsEdit }) => {
   const dispatch = useDispatch();
 
-  const handleEdit =(product) => {
-    onHandleSetProductToEdit(product)
-  }
+  const [product, setProduct] = useState({
+    id: "",
+    title: "",
+    price: "",
+    description: "",
+    category: "",
+  });
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (onIsEdit) {
+      dispatch(updateProduct({ product: product, id: product.id }));
+    } else {
+      dispatch(createProduct({ ...product, id: nanoid() }));
+    }
+    setProduct({ id: "", title: "", price: "", description: "", category: "" }); // reset form
+  };
+
+  const handleChange = (e) => {
+    setProduct({
+      ...product,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+    if (onProductToEdit) {
+      setProduct({
+        title: onProductToEdit.title,
+        price: onProductToEdit.price,
+        description: onProductToEdit.description,
+        category: onProductToEdit.category,
+      });
+    }
+  }, [onProductToEdit]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black text-gray-100 py-12 px-6 flex flex-col items-center">
-      <h1 className="text-3xl md:text-4xl font-bold text-white mb-10">
-        🛍️ Product Collection
-      </h1>
+    <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center px-6 py-12">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-2xl border border-gray-700 w-full max-w-md p-8"
+      >
+        <h2 className="text-3xl font-bold text-white mb-8 text-center">
+          🛒 Add New Product
+        </h2>
 
-      {isLoading && (
-        <div className="flex justify-center items-center h-40">
-          <p className="text-xl text-blue-400 animate-pulse">Loading...</p>
-        </div>
-      )}
+        <div className="flex flex-col gap-5">
+          <input
+            type="text"
+            name="title"
+            value={product.title}
+            onChange={handleChange}
+            placeholder="Product Title"
+            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+            required
+          />
 
-      {error && (
-        <div className="bg-red-800 text-red-200 p-4 rounded-xl mb-4 shadow-md">
-          <h2 className="font-semibold">❌ Error:</h2>
-          <p>{error.message || "Something went wrong."}</p>
-        </div>
-      )}
+          <input
+            type="text"
+            name="price"
+            value={product.price}
+            onChange={handleChange}
+            placeholder="Product Price"
+            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+            required
+          />
 
-      {!isLoading && !error && products?.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-gray-800/70 backdrop-blur-lg border border-gray-700 hover:border-blue-500 hover:shadow-blue-500/30 shadow-md transition-all duration-300 rounded-2xl p-6 flex flex-col justify-between"
+          <textarea
+            type="text"
+            name="description"
+            value={product.description}
+            onChange={handleChange}
+            placeholder="Description"
+            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+            required
+          />
+
+          <input
+            type="text"
+            name="category"
+            value={product.category}
+            onChange={handleChange}
+            placeholder="Category"
+            className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
+            required
+          />
+
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl py-3 mt-4 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
+          >
+            {onIsEdit ? "Update" : " Add Product"}
+          </button>
+
+          {onIsEdit && (
+            <button
+              type="submit"
+              className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl py-3 mt-4 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
             >
-              <div>
-                <h2 className="text-xl font-semibold text-white mb-2 hover:text-blue-400 transition-colors">
-                  {product.title}
-                </h2>
-                <p className="text-gray-400 text-sm mb-3">
-                  {product.category}
-                </p>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  {product.description.length > 100
-                    ? product.description.slice(0, 100) + "..."
-                    : product.description}
-                </p>
-              </div>
-
-              <div className="flex justify-between items-center mt-5">
-                <p className="text-lg font-semibold text-blue-400">
-                  ${product.price}
-                </p>
-                <div className="flex gap-2">
-                  <button 
-                onClick={() => handleEdit(product)}
-                className="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-all duration-300 cursor-pointer">
-                  Edit
-                </button>
-                  <button 
-                onClick={() => dispatch(deleteProduct(product.id))}
-                className="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all duration-300 cursor-pointer">
-                  Delete
-                </button>
-                </div>
-              </div>
-            </div>
-          ))}
+              Cancel
+            </button>
+          )}
         </div>
-      ) : (
-        !isLoading &&
-        !error && (
-          <p className="text-gray-400 text-lg mt-10">No products available 💤</p>
-        )
-      )}
-
+      </form>
     </div>
   );
 };
 
-export default ProductListView;
+export default ProductForm;
