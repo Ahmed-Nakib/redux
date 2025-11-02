@@ -1,37 +1,45 @@
-import { nanoid } from "nanoid";
-import React, { useState } from "react";
-import { useAddProductMutation } from "../../services/productsApi";
-const ProductForm = () => {
- 
-  const [product, setProduct] = useState({
+// import { nanoid } from "nanoid";
+import React, { useEffect, useState } from "react";
+
+import { useUpdateProductMutation } from "../../services/productsApi";
+
+const UpdateProduct = ({onEdit, onCancel}) => {
+
+    const [updateProduct] = useUpdateProductMutation()
+    
+    const [product, setProduct] = useState({
     id: "",
     title: "",
     price: "",
     description: "",
     category: "",
-  });
-  
-  const [addProduct] = useAddProductMutation();
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-   try {
-    await addProduct({ ...product, id: nanoid() })
-   } catch (error) {
-    console.log(error);
-    
-   }
-    setProduct({ id: "", title: "", price: "", description: "", category: "" }); 
-  };
-
-  const handleChange = (e) => {
-    setProduct({
-      ...product,
-      [e.target.name]: e.target.value,
     });
-  };
 
+    useEffect(() => {
+    if (onEdit) {
+      setProduct({
+        id: onEdit.id || "",
+        title: onEdit.title || "",
+        price: onEdit.price || "",
+        description: onEdit.description || "",
+        category: onEdit.category || "",
+      });
+    }
+    }, [onEdit]);
 
+    const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProduct((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        await updateProduct({id: product.id , updateProduct: product})
+        onCancel()
+    }
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center px-6 py-12">
@@ -83,11 +91,19 @@ const ProductForm = () => {
             className="bg-gray-900 text-gray-100 border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500"
             required
           />
+
              <button
              type="submit"
               className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl py-3 mt-4 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
             >
-              Add Product
+              Update Product
+            </button>
+
+             <button
+              onClick={onCancel}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl py-3 mt-4 transition-all duration-300 shadow-md hover:shadow-blue-500/30"
+            >
+              Cancel
             </button>
         </div>
       </form>
@@ -95,4 +111,4 @@ const ProductForm = () => {
   );
 };
 
-export default ProductForm;
+export default UpdateProduct;

@@ -1,25 +1,26 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { deleteProduct, fetchProducts } from "./productSlice";
+import React, { useState } from 'react'
+import { useDeleteProductMutation, useGetProductsQuery } from '../../services/productsApi';
+import UpdateProduct from './UpdateProduct';
 
-const ProductListView = ({ onHandleSetProductToEdit }) => {
-  const { isLoading, products, error } = useSelector((state) => state.productsR);
-  const dispatch = useDispatch();
+const ProductsView = () => {
 
-  useEffect(() => {
-    dispatch(fetchProducts());
-  }, [dispatch]);
+  const {data, isLoading, error} = useGetProductsQuery()
+  
+  const [deleteProduct] = useDeleteProductMutation()
 
+  
+
+  const handleDelete = async (id) => {
+    await deleteProduct(id)
+  }
+
+  const [edit, setEdit] = useState(null)
   const handleEdit = (product) => {
-    onHandleSetProductToEdit(product);
-  };
-
-  const handleDelete = (id) => {
-    dispatch(deleteProduct(id));
-  };
+    setEdit(product)
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-gray-100 py-16 px-6 flex flex-col items-center">
+   <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-gray-100 py-16 px-6 flex flex-col items-center">
       {/* Header */}
       <h1 className="text-4xl font-bold text-white mb-10 tracking-wide">
         🛍️ Product Collection
@@ -39,16 +40,14 @@ const ProductListView = ({ onHandleSetProductToEdit }) => {
           <p>{error.message || "Something went wrong."}</p>
         </div>
       )}
-
-      {/* Products Grid */}
-      {!isLoading && !error && products?.length > 0 ? (
+      {!isLoading && !error && data?.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-          {products.map((product) => (
+          {data.map((product) => (
             <div
               key={product.id}
               className="bg-gray-800/80 backdrop-blur-lg border border-gray-700 hover:border-blue-500 hover:shadow-blue-500/30 shadow-lg transition-all duration-300 rounded-2xl p-6 flex flex-col justify-between"
             >
-              {/* Product Info */}
+              
               <div>
                 <h2 className="text-xl font-semibold text-white mb-2 hover:text-blue-400 transition-colors">
                   {product.title}
@@ -57,9 +56,7 @@ const ProductListView = ({ onHandleSetProductToEdit }) => {
                   {product.category}
                 </p>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  {product.description.length > 100
-                    ? product.description.slice(0, 100) + "..."
-                    : product.description}
+                 {product.description}
                 </p>
               </div>
 
@@ -70,18 +67,12 @@ const ProductListView = ({ onHandleSetProductToEdit }) => {
                 </p>
 
                 <div className="space-x-3">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300"
-                  >
-                    Delete
-                  </button>
+                  <button 
+                  onClick={() => handleEdit(product)}
+                  className='px-1.5 py-1 border'>Edit</button>
+                  <button 
+                  onClick={() => handleDelete(product.id)}
+                  className='px-1.5 py-1 border'>delete</button>
                 </div>
               </div>
             </div>
@@ -93,8 +84,10 @@ const ProductListView = ({ onHandleSetProductToEdit }) => {
           <p className="text-gray-400 text-lg mt-10">No products available 💤</p>
         )
       )}
-    </div>
-  );
-};
 
-export default ProductListView;
+      {edit && <UpdateProduct onEdit={edit} onCancel={() => setEdit(null)}/>}
+    </div>
+  )
+}
+
+export default ProductsView

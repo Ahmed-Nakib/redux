@@ -1,11 +1,18 @@
 {
   "products": [
     {
-      "id": "iToMaegYsfZFClQbTDboB",
+      "id": "iToMaegYsfFClQbdsaTDbo4",
       "title": "dsaffdsaf",
       "price": "5464dsfasedf",
       "description": "wretweadsfdsa",
       "category": "sdfgdsfag"
+    },
+    {
+      "id": "iToMaegYsfZFClQbTDboo",
+      "title": "dsaffdsaf",
+      "price": "5464dsfasedf",
+      "description": "wretweadsfdsa",
+      "category": "00000000000000"
     }
   ]
 }
